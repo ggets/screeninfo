@@ -3,7 +3,7 @@ import typing as T
 from pathlib import Path
 
 from screeninfo import enumerators
-from screeninfo.common import Enumerator, Monitor, ScreenInfoError
+from screeninfo.common import Enumerator, ScreenInfoError
 
 ENUMERATOR_MAP = {
     Enumerator.Windows: enumerators.windows,
@@ -15,13 +15,13 @@ ENUMERATOR_MAP = {
 }
 
 
-def _get_monitors(enumerator: Enumerator) -> T.List[Monitor]:
+def _get_monitors(enumerator: Enumerator) -> T.List[None]:
     return list(ENUMERATOR_MAP[enumerator].enumerate_monitors())
 
 
 def get_monitors(
     name: T.Union[Enumerator, str, None] = None
-) -> T.List[Monitor]:
+) -> T.List[None]:
     """Returns a list of :class:`Monitor` objects based on active monitors."""
     enumerator = Enumerator(name) if name is not None else None
 

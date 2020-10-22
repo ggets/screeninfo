@@ -1,10 +1,10 @@
 import sys
 import typing as T
 
-from screeninfo.common import Monitor, ScreenInfoError
+from screeninfo.common import ScreenInfoError
 
 
-def enumerate_monitors() -> T.Iterable[Monitor]:
+def enumerate_monitors() -> T.Iterable[None]:
     import ctypes
     import ctypes.util
 
@@ -99,17 +99,16 @@ def enumerate_monitors() -> T.Iterable[Monitor]:
                 )
 
                 try:
-                    yield Monitor(
-                        x=crtc_info.contents.x,
-                        y=crtc_info.contents.y,
-                        width=crtc_info.contents.width,
-                        height=crtc_info.contents.height,
-                        width_mm=output_info.contents.mm_width,
-                        height_mm=output_info.contents.mm_height,
-                        name=output_info.contents.name.decode(
-                            sys.getfilesystemencoding()
-                        ),
-                    )
+                    current_monitor=lambda:None
+                    current_monitor.x=crtc_info.contents.x
+                    current_monitor.y=crtc_info.contents.y
+                    current_monitor.width=crtc_info.contents.width
+                    current_monitor.height=crtc_info.contents.height
+                    current_monitor.width_mm=output_info.contents.mm_width
+                    current_monitor.height_mm=output_info.contents.mm_height
+                    current_monitor.name=output_info.contents.name.decode(sys.getfilesystemencoding())
+
+                    yield current_monitor
 
                 finally:
                     xrandr.XRRFreeCrtcInfo(crtc_info)

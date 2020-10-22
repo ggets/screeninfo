@@ -1,9 +1,9 @@
 import typing as T
 
-from screeninfo.common import Monitor, ScreenInfoError
+from screeninfo.common import ScreenInfoError
 
 
-def enumerate_monitors() -> T.Iterable[Monitor]:
+def enumerate_monitors() -> T.Iterable[None]:
     import ctypes
 
     from screeninfo.util import load_library
@@ -43,9 +43,14 @@ def enumerate_monitors() -> T.Iterable[Monitor]:
         ).contents
 
         for info in infos:
-            yield Monitor(
-                x=info.x, y=info.y, width=info.width, height=info.height
-            )
+            current_monitor=lambda:None
+
+            current_monitor.x=info.x
+            current_monitor.y=info.y
+            current_monitor.width=info.width
+            current_monitor.height=info.height
+
+            yield current_monitor
 
         xlib.XFree(infos)
 

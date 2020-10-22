@@ -1,9 +1,7 @@
 import typing as T
 
-from screeninfo.common import Monitor
 
-
-def enumerate_monitors() -> T.Iterable[Monitor]:
+def enumerate_monitors() -> T.Iterable[None]:
     import ctypes
     import ctypes.wintypes
 
@@ -43,17 +41,17 @@ def enumerate_monitors() -> T.Iterable[Monitor]:
         v_size = ctypes.windll.gdi32.GetDeviceCaps(dc, VERTSIZE)
 
         rct = rect.contents
-        monitors.append(
-            Monitor(
-                x=rct.left,
-                y=rct.top,
-                width=rct.right - rct.left,
-                height=rct.bottom - rct.top,
-                width_mm=h_size,
-                height_mm=v_size,
-                name=name,
-            )
-        )
+        current_monitor=lambda:None
+
+        current_monitor.x=rct.left
+        current_monitor.y=rct.top
+        current_monitor.width=rct.right - rct.left
+        current_monitor.height=rct.bottom - rct.top
+        current_monitor.width_mm=h_size
+        current_monitor.height_mm=v_size
+        current_monitor.name=name
+
+        monitors.append(current_monitor)
         return 1
 
     # Make the process DPI aware so it will detect the actual

@@ -1,2 +1,2 @@
-from .common import Enumerator, Monitor
+from .common import Enumerator
 from .screeninfo import get_monitors

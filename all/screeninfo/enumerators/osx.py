@@ -1,9 +1,7 @@
 import typing as T
 
-from screeninfo.common import Monitor
 
-
-def enumerate_monitors() -> T.Iterable[Monitor]:
+def enumerate_monitors() -> T.Iterable[None]:
     from pyobjus import autoclass
     from pyobjus.dylib_manager import INCLUDE, load_framework
 
@@ -13,12 +11,13 @@ def enumerate_monitors() -> T.Iterable[Monitor]:
 
     for i in range(screens.count()):
         f = screens.objectAtIndex_(i).frame
+        current_monitor=lambda: None
         if callable(f):
             f = f()
 
-        yield Monitor(
-            x=int(f.origin.x),
-            y=int(f.origin.y),
-            width=int(f.size.width),
-            height=int(f.size.height),
-        )
+            current_monitor.x=int(f.origin.x)
+            current_monitor.y=int(f.origin.y)
+            current_monitor.width=int(f.size.width)
+            current_monitor.height=int(f.size.height)
+
+        yield current_monitor

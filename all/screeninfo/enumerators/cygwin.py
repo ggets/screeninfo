@@ -1,9 +1,7 @@
 import typing as T
 
-from screeninfo.common import Monitor
 
-
-def enumerate_monitors() -> T.Iterable[Monitor]:
+def enumerate_monitors() -> T.Iterable[None]:
     import ctypes
 
     LONG = ctypes.c_int32
@@ -46,14 +44,14 @@ def enumerate_monitors() -> T.Iterable[Monitor]:
 
     def callback(monitor: T.Any, dc: T.Any, rect: T.Any, data: T.Any) -> int:
         rct = rect.contents
-        monitors.append(
-            Monitor(
-                x=rct.left,
-                y=rct.top,
-                width=rct.right - rct.left,
-                height=rct.bottom - rct.top,
-            )
-        )
+        current_monitor=lambda:None
+
+        current_monitor.x=rct.left
+        current_monitor.y=rct.top
+        current_monitor.width=rct.right - rct.left
+        current_monitor.height=rct.bottom - rct.top
+
+        monitors.append(current_monitor)
         return 1
 
     user32.EnumDisplayMonitors(None, None, MonitorEnumProc(callback), 0)
