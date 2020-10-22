@@ -7,6 +7,7 @@ Original Package:
 
 * [GitHub](https://github.com/rr-/screeninfo)
 
+Because of the lack of **dataclass**es in python 3.3, it returns a lambda instead.
 
 ### Usage
 
