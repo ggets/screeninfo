@@ -25,12 +25,15 @@ def enumerate_monitors() -> T.Iterable[None]:
 
     SPI_GETWORKAREA = 48
     CCHDEVICENAME = 32
+    # shcore SetProcessDpiAwareness() and GetDpiForMonitor()
+    PROCESS_PER_MONITOR_DPI_AWARE = 2
+    MDT_EFFECTIVE_DPI = 0
     # gdi32.GetDeviceCaps keys for monitor size in mm
     HORZSIZE = 4
     VERTSIZE = 6
 
+    shcore = ctypes.windll.shcore
     user32 = ctypes.windll.user32
-    SPI = user32.SystemParametersInfoW
 
     ptr_size = ctypes.sizeof(HANDLE)
     if ptr_size == ctypes.sizeof(LONG):
@@ -70,16 +73,19 @@ def enumerate_monitors() -> T.Iterable[None]:
     def callback(monitor: T.Any, dc: T.Any, rect: T.Any, data: T.Any) -> int:
         info = MONITORINFOEXW()
         info.cbSize = ctypes.sizeof(MONITORINFOEXW)
-        if ctypes.windll.user32.GetMonitorInfoW(monitor, ctypes.byref(info)):
+        if user32.GetMonitorInfoW(monitor, ctypes.byref(info)):
             name = info.szDevice
         else:
             name = None
 
-        h_size = ctypes.windll.gdi32.GetDeviceCaps(dc, HORZSIZE)
-        v_size = ctypes.windll.gdi32.GetDeviceCaps(dc, VERTSIZE)
+        gdi32 = ctypes.windll.gdi32
+
+        h_size = gdi32.GetDeviceCaps(dc, HORZSIZE)
+        v_size = gdi32.GetDeviceCaps(dc, VERTSIZE)
 
         rct = rect.contents
 
+        SPI = user32.SystemParametersInfoW
         SPI.restype = BOOL
         SPI.argtypes = [
             UINT,
@@ -88,11 +94,21 @@ def enumerate_monitors() -> T.Iterable[None]:
             UINT
         ]
         rect = RECT()
-        result = SPI(
+        spi_result = SPI(
             SPI_GETWORKAREA,
             0, 
             ctypes.byref(rect),
             0
+        )
+        dpiX = UINT()
+        dpiY = UINT()
+        GDFM = shcore.GetDpiForMonitor
+        GDFM.restype = BOOL
+        gdfm_result = GDFM(
+            monitor,
+            MDT_EFFECTIVE_DPI,
+            ctypes.byref(dpiX),
+            ctypes.byref(dpiY)
         )
 
         cur_mon=lambda:None
@@ -103,9 +119,12 @@ def enumerate_monitors() -> T.Iterable[None]:
         cur_mon.height=(rct.bottom - rct.top)
         cur_mon.width_mm=h_size
         cur_mon.height_mm=v_size
-        if result:
+        if spi_result:
             cur_mon.width_workarea=abs(rect.left-rect.right)
             cur_mon.height_workarea=abs(rect.top-rect.bottom)
+        # if gdfm_result:
+        cur_mon.dpiX=dpiX.value
+        cur_mon.dpiY=dpiY.value
 
         monitors.append(cur_mon)
         return 1
@@ -116,13 +135,15 @@ def enumerate_monitors() -> T.Iterable[None]:
     #
     # benshep 2020-03-31: this gives the correct behaviour on Windows 10 when
     # multiple monitors have different DPIs.
-    ctypes.windll.shcore.SetProcessDpiAwareness(2)
+    shcore.SetProcessDpiAwareness(PROCESS_PER_MONITOR_DPI_AWARE)
 
     # On Python 3.8.X GetDC randomly fails returning an invalid DC.
     # To workaround this request a number of DCs until a valid DC is returned.
     for retry in range(100):
         # Create a Device Context for the full virtual desktop.
-        dc_full = user32.GetDC(None)
+        GDC = user32.GetDC
+        GDC.restype = HDC
+        dc_full = GDC(None)
         if dc_full > 0:
             # Got a valid DC, break.
             break
