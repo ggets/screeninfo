@@ -3,7 +3,14 @@
 
 Sublime Text dependency of screeninfo for retrieving screen information.
 
-Original Package:
+# Requirements:
+
+Screeninfo itself uses the following dependencies:
+
+* enum
+* typing
+
+# Original Package:
 
 * [GitHub](https://github.com/rr-/screeninfo)
 
