@@ -78,10 +78,10 @@ def enumerate_monitors() -> T.Iterable[None]:
         else:
             name = None
 
-        gdi32 = ctypes.cdll.LoadLibrary("gdi32.dll")
+        # gdi32 = ctypes.cdll.LoadLibrary("gdi32.dll")
 
-        h_size = gdi32.GetDeviceCaps(dc, HORZSIZE)
-        v_size = gdi32.GetDeviceCaps(dc, VERTSIZE)
+        # h_size = gdi32.GetDeviceCaps(dc, HORZSIZE)
+        # v_size = gdi32.GetDeviceCaps(dc, VERTSIZE)
 
         rct = rect.contents
 
@@ -117,8 +117,8 @@ def enumerate_monitors() -> T.Iterable[None]:
         cur_mon.y=rct.top
         cur_mon.width=(rct.right - rct.left)
         cur_mon.height=(rct.bottom - rct.top)
-        cur_mon.width_mm=h_size
-        cur_mon.height_mm=v_size
+        # cur_mon.width_mm=h_size
+        # cur_mon.height_mm=v_size
         if spi_result:
             cur_mon.width_workarea=abs(rect.left-rect.right)
             cur_mon.height_workarea=abs(rect.top-rect.bottom)
@@ -164,6 +164,6 @@ def enumerate_monitors() -> T.Iterable[None]:
         MonitorEnumProc(callback),
         0
     )
-    user32.ReleaseDC(dc_full)
+    # user32.ReleaseDC(dc_full)
 
     yield from monitors
